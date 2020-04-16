@@ -25,6 +25,11 @@
       <div class="col-2">Token Verification:</div>
       <div class="col-10">{{JSON.stringify(tokenVerification)}}</div>
     </div>
+    <div class="row">
+      <div class="col-2 offset-6">
+        <router-link :to="{path: '/', params: {}}">Try Again</router-link>
+      </div>
+    </div>
   </div>
 </template>
 
