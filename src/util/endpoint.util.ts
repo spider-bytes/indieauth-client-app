@@ -1,5 +1,6 @@
 // this endpoint replacement is for fixing cors issues
 export function fixEndpoints (options: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
+  // TODO add configuration for disabling this (after: edit documentation)
   const currentOrigin = window.location.origin
 
   if (options.authEndpoint === 'https://indieauth.com/auth') {
