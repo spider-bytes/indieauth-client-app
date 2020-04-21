@@ -28,6 +28,12 @@ export default {
     }
   },
   mounted () {
+    const searchParams = new URLSearchParams(window.location.search)
+    const routePath = searchParams.get('route_path')
+    if (routePath) {
+      this.$router.replace(routePath)
+    }
+
     this.userId = sessionStorage.getItem('auth.me')
   },
   methods: {
