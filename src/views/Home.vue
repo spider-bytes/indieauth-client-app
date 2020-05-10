@@ -31,7 +31,14 @@ export default {
     const searchParams = new URLSearchParams(window.location.search)
     const routePath = searchParams.get('route_path')
     if (routePath) {
-      this.$router.replace(routePath)
+      const query = {}
+      searchParams.forEach((value, key) => {
+        if (key !== 'route_path') {
+          query[key] = value
+        }
+      })
+
+      this.$router.replace({ path: routePath, query })
     }
 
     this.userId = sessionStorage.getItem('auth.me')

@@ -38,6 +38,7 @@ import IndieAuth from 'indieauth-helper'
 import qs from 'querystring'
 import { getAuthOptions } from '@/constants'
 import { fixEndpoints } from '@/util/endpoint.util'
+import { cleanCurrentUrl } from '@/util/url.util'
 
 export default {
   name: 'Auth',
@@ -53,6 +54,8 @@ export default {
     }
   },
   async mounted () {
+    cleanCurrentUrl()
+
     try {
       const auth = new IndieAuth(getAuthOptions())
 
