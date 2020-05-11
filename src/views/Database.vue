@@ -6,12 +6,16 @@
       <div class="col-10">{{userId}}</div>
     </div>
     <div class="row">
-      <div class="col-2">Token:</div>
-      <div class="col-10">{{token}}</div>
+      <div class="col-2">User Token:</div>
+      <div class="col-10">{{userToken}}</div>
     </div>
     <div class="row">
       <div class="col-2">Spider-Bytes Address:</div>
       <div class="col-10">{{spiderBytesAddress}}</div>
+    </div>
+    <div class="row">
+      <div class="col-2">Database Token:</div>
+      <div class="col-10">{{databaseToken}}</div>
     </div>
   </div>
 </template>
@@ -26,19 +30,28 @@ export default {
   data: function () {
     return {
       userId: this.userId,
-      token: this.token,
+      userToken: this.userToken,
       spiderBytesAddress: this.spiderBytesAddress,
+      databaseToken: this.databaseToken,
     }
   },
   async mounted () {
     this.userId = sessionStorage.getItem('step1.userId');
-    this.token = sessionStorage.getItem('step2.token');
+    this.userToken = sessionStorage.getItem('step2.token');
 
     const auth = new IndieAuth(getAuthOptions());
     const rels = await auth.getRelsFromUrl(this.userId, ['spider-bytes']);
-    this.spiderBytesAddress = rels['spider-bytes'];
+    this.spiderBytesAddress = rels['spider-bytes'].replace(/\/$/g, '');
 
-    // await fetch();
+    const response = await fetch(this.spiderBytesAddress + '/database-session', {
+      method: 'POST',
+      headers: {
+        Authorization: 'Bearer ' + this.userToken,
+        'IndieAuth-UserId': this.userId,
+      }
+    });
+    const databaseSessionBody = await response.json();
+    this.databaseToken = databaseSessionBody.token;
   }
 }
 </script>
