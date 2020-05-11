@@ -41,7 +41,7 @@ export default {
       this.$router.replace({ path: routePath, query })
     }
 
-    this.userId = sessionStorage.getItem('auth.me')
+    this.userId = sessionStorage.getItem('step1.userId')
   },
   methods: {
     keyPress (e) {
@@ -51,7 +51,7 @@ export default {
     },
     authenticate () {
       const auth = new IndieAuth(getAuthOptions())
-      sessionStorage.setItem('auth.me', this.userId)
+      sessionStorage.setItem('step1.userId', this.userId)
       auth.options.me = this.userId
 
       auth

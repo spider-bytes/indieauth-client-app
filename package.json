@@ -53,7 +53,11 @@
     "parserOptions": {
       "ecmaVersion": 2020
     },
-    "rules": {}
+    "rules": {
+      "comma-dangle": "off",
+      "indent": "off",
+      "semi": "off"
+    }
   },
   "browserslist": [
     "> 1%",

@@ -25,11 +25,6 @@
       <div class="col-2">Token Verification:</div>
       <div class="col-10">{{JSON.stringify(tokenVerification)}}</div>
     </div>
-    <div class="row">
-      <div class="col-2 offset-6">
-        <router-link :to="{path: '/', params: {}}">Try Again</router-link>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -59,9 +54,8 @@ export default {
     try {
       const auth = new IndieAuth(getAuthOptions())
 
-      const searchQuery = window.location.href.split('?').slice(1).join('?')
-      const searchParams = new URLSearchParams(searchQuery)
-      this.stateStr = searchParams.get('state')
+      const query = this.$route.query;
+      this.stateStr = query.state;
       if (this.stateStr) {
         this.state = auth.validateState(this.stateStr)
         if (!this.state) {
@@ -70,15 +64,17 @@ export default {
 
         auth.options.me = this.state.me
       } else {
-        auth.options.me = sessionStorage.getItem('auth.me')
+        auth.options.me = sessionStorage.getItem('step1.userId')
       }
       await auth.getRelsFromUrl(auth.options.me)
       auth.options = fixEndpoints(auth.options)
 
-      this.code = searchParams.get('code')
+      this.code = query.code || sessionStorage.getItem('step2.code')
+      sessionStorage.setItem('step2.code', this.code)
       this.codeVerification = await auth.verifyCode(this.code)
 
       this.token = await auth.getToken(this.code)
+      sessionStorage.setItem('step2.token', this.token)
       const response = await fetch(auth.options.tokenEndpoint, { headers: { Authorization: 'Bearer ' + this.token } })
       const contentType = response.headers.get('Content-Type')
       if (contentType.startsWith('application/json')) {
@@ -86,6 +82,7 @@ export default {
       } else {
         this.tokenVerification = qs.parse(await response.text())
       }
+      sessionStorage.setItem('step1.userId', this.tokenVerification.me);
     } catch (err) {
       console.error('error', err)
     }
