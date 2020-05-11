@@ -53,9 +53,9 @@ export default {
     const databaseSessionBody = await response.json();
     this.databaseToken = databaseSessionBody.token;
 
-    // TODO add list database
-    // TODO add create database
-    // TODO add delete database
+    // TODO shortterm add list database
+    // TODO shortterm add create database
+    // TODO shortterm add delete database
   }
 }
 </script>
