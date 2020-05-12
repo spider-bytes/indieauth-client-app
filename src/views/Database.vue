@@ -24,6 +24,7 @@
         <ul v-if="dbList && dbList.length > 0">
           <li v-for="db of dbList" :key="db">
             {{db}}
+            <button class="btn btn-primary btn-sm m-2" @click="deleteDatabase(db)">Delete</button><br>
           </li>
         </ul>
         <span v-if="!(dbList && dbList.length > 0)"> - </span>
@@ -67,12 +68,19 @@
           .map((database) => database.databaseId);
       },
       createDatabase: async function() {
-        const createDbRes = await fetch(this.spiderBytesAddress + '/database', {
+        await fetch(this.spiderBytesAddress + '/database', {
           method: 'POST',
           headers: this.createDatabaseTokenHeaders(),
         });
         await this.fetchDatabaseList();
-      }
+      },
+      deleteDatabase: async function(dbId) {
+        await fetch(this.spiderBytesAddress + '/database/' + dbId, {
+          method: 'DELETE',
+          headers: this.createDatabaseTokenHeaders(),
+        });
+        await this.fetchDatabaseList();
+      },
     },
     async mounted() {
       this.userId = sessionStorage.getItem('step1.userId');
