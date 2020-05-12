@@ -56,7 +56,8 @@
     "rules": {
       "comma-dangle": "off",
       "indent": "off",
-      "semi": "off"
+      "semi": "off",
+      "space-before-function-paren": "off"
     }
   },
   "browserslist": [
