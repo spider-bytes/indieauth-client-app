@@ -20,6 +20,7 @@
     <div class="row">
       <div class="col-2">Database List:</div>
       <div class="col-10">
+        <button class="btn btn-primary btn-sm m-2" @click="createDatabase">Create Database</button><br>
         <ul v-if="dbList && dbList.length > 0">
           <li v-for="db of dbList" :key="db">
             {{db}}
@@ -65,6 +66,13 @@
           .databases
           .map((database) => database.databaseId);
       },
+      createDatabase: async function() {
+        const createDbRes = await fetch(this.spiderBytesAddress + '/database', {
+          method: 'POST',
+          headers: this.createDatabaseTokenHeaders(),
+        });
+        await this.fetchDatabaseList();
+      }
     },
     async mounted() {
       this.userId = sessionStorage.getItem('step1.userId');
