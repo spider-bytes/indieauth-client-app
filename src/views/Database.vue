@@ -28,12 +28,16 @@
     <div class="row">
       <div class="col-2">Database List:</div>
       <div class="col-10">
-        <form class="d-flex align-items-center">
+        <form class="form-inline my-2">
+          <div class="form-group mx-2">
+            <label for="exampleInput1" class="mr-2">Scope:</label>
+            <input type="text" class="form-control" id="exampleInput1" placeholder="example-scope" v-model="createDatabaseScope">
+          </div>
           <div class="form-check mx-2">
             <input type="checkbox" class="form-check-input" id="exampleCheck1" v-model="createDatabaseIsFilesystem">
             <label class="form-check-label" for="exampleCheck1">Is Filesystem?</label>
           </div>
-          <button class="btn btn-primary btn-sm m-2" @click="createDatabase">Create Database</button>
+          <button class="btn btn-primary btn-sm mx-2" @click="createDatabase">Create Database</button>
         </form>
         <br>
         <ul v-if="dbList && dbList.length > 0">
@@ -107,6 +111,7 @@
         userUrl: this.userUrl,
         filesystemDatabase: this.filesystemDatabase,
         filesystemDatabaseRequested: this.filesystemDatabaseRequested,
+        createDatabaseScope: this.createDatabaseScope,
         createDatabaseIsFilesystem: this.createDatabaseIsFilesystem,
       }
     },
@@ -142,7 +147,7 @@
         await fetch(this.spiderBytesAddress + '/database', {
           method: 'POST',
           headers: this.createDatabaseTokenHeaders(),
-          body: JSON.stringify({ isFilesystem }),
+          body: JSON.stringify({ scope: this.createDatabaseScope, isFilesystem }),
         });
         await this.fetchDatabaseList();
       },
