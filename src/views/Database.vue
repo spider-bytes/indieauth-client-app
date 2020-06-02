@@ -76,6 +76,10 @@
         <span v-if="!(dbList && dbList.length > 0)"> - </span>
       </div>
     </div>
+    <div class="row">
+      <div class="col-2">Filesystem Database:</div>
+      <div class="col-10">{{filesystemDatabaseRequested ? (filesystemDatabase ? filesystemDatabase : 'not found') : '-'}}</div>
+    </div>
   </div>
 </template>
 
@@ -95,6 +99,8 @@
         databaseToken: this.databaseToken,
         dbList: this.dbList,
         userUrl: this.userUrl,
+        filesystemDatabase: this.filesystemDatabase,
+        filesystemDatabaseRequested: this.filesystemDatabaseRequested,
       }
     },
     methods: {
@@ -159,8 +165,17 @@
       this.databaseToken = databaseSessionBody.token;
 
       await this.fetchDatabaseList();
-      // TODO shortterm add create database
-      // TODO shortterm add delete database
+
+      const fsRes = await fetch(this.spiderBytesAddress + '/filesystem', {
+        headers: this.createDatabaseTokenHeaders(),
+      });
+      const fs = await fsRes.json();
+      if (fsRes.ok) {
+        this.filesystemDatabase = fs.filesystemDatabase;
+      } else {
+        this.filesystemDatabase = null;
+      }
+      this.filesystemDatabaseRequested = true;
     }
   }
 </script>
