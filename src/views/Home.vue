@@ -55,7 +55,7 @@ export default {
       auth.options.me = this.userId
 
       auth
-        .getAuthUrl('code', ['demo-scope1', 'demo-scope2', 'db'])
+        .getAuthUrl('code', ['spider-bytes:demo-scope1', 'spider-bytes:demo-scope2', 'spider-bytes:db'])
         .then(url => (window.location.href = url))
         .catch(err => console.log(err))
     }
