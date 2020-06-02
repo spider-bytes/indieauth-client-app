@@ -22,9 +22,19 @@
       <div class="col-10">{{databaseToken}}</div>
     </div>
     <div class="row">
+      <div class="col-2">Filesystem Database:</div>
+      <div class="col-10">{{filesystemDatabaseRequested ? (filesystemDatabase ? filesystemDatabase : 'not found') : '-'}}</div>
+    </div>
+    <div class="row">
       <div class="col-2">Database List:</div>
       <div class="col-10">
-        <button class="btn btn-primary btn-sm m-2" @click="createDatabase">Create Database</button>
+        <form class="d-flex align-items-center">
+          <div class="form-check mx-2">
+            <input type="checkbox" class="form-check-input" id="exampleCheck1" v-model="createDatabaseIsFilesystem">
+            <label class="form-check-label" for="exampleCheck1">Is Filesystem?</label>
+          </div>
+          <button class="btn btn-primary btn-sm m-2" @click="createDatabase">Create Database</button>
+        </form>
         <br>
         <ul v-if="dbList && dbList.length > 0">
           <li v-for="db of dbList" :key="db.databaseId">
@@ -76,10 +86,6 @@
         <span v-if="!(dbList && dbList.length > 0)"> - </span>
       </div>
     </div>
-    <div class="row">
-      <div class="col-2">Filesystem Database:</div>
-      <div class="col-10">{{filesystemDatabaseRequested ? (filesystemDatabase ? filesystemDatabase : 'not found') : '-'}}</div>
-    </div>
   </div>
 </template>
 
@@ -101,6 +107,7 @@
         userUrl: this.userUrl,
         filesystemDatabase: this.filesystemDatabase,
         filesystemDatabaseRequested: this.filesystemDatabaseRequested,
+        createDatabaseIsFilesystem: this.createDatabaseIsFilesystem,
       }
     },
     methods: {
@@ -120,11 +127,22 @@
       fetchDatabaseList: async function () {
         const dbListRes = await fetch(this.spiderBytesAddress + '/database', { headers: this.createDatabaseTokenHeaders() });
         this.dbList = (await dbListRes.json()).databases;
+
+        const fsRes = await fetch(this.spiderBytesAddress + '/filesystem', { headers: this.createDatabaseTokenHeaders() });
+        const fs = await fsRes.json();
+        if (fsRes.ok) {
+          this.filesystemDatabase = fs.filesystemDatabase;
+        } else {
+          this.filesystemDatabase = null;
+        }
+        this.filesystemDatabaseRequested = true;
       },
       createDatabase: async function () {
+        const isFilesystem = !!this.createDatabaseIsFilesystem;
         await fetch(this.spiderBytesAddress + '/database', {
           method: 'POST',
           headers: this.createDatabaseTokenHeaders(),
+          body: JSON.stringify({ isFilesystem }),
         });
         await this.fetchDatabaseList();
       },
@@ -165,17 +183,6 @@
       this.databaseToken = databaseSessionBody.token;
 
       await this.fetchDatabaseList();
-
-      const fsRes = await fetch(this.spiderBytesAddress + '/filesystem', {
-        headers: this.createDatabaseTokenHeaders(),
-      });
-      const fs = await fsRes.json();
-      if (fsRes.ok) {
-        this.filesystemDatabase = fs.filesystemDatabase;
-      } else {
-        this.filesystemDatabase = null;
-      }
-      this.filesystemDatabaseRequested = true;
     }
   }
 </script>
