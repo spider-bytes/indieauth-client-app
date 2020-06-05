@@ -135,11 +135,7 @@
 
         const fsRes = await fetch(this.spiderBytesAddress + '/filesystem', { headers: this.createDatabaseTokenHeaders() });
         const fs = await fsRes.json();
-        if (fsRes.ok) {
-          this.filesystemDatabase = fs.filesystemDatabase;
-        } else {
-          this.filesystemDatabase = null;
-        }
+        this.filesystemDatabase = fsRes.ok ? fs.databaseId : null;
         this.filesystemDatabaseRequested = true;
       },
       createDatabase: async function () {
