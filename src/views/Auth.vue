@@ -29,10 +29,9 @@
 </template>
 
 <script>
-import IndieAuth from 'indieauth-helper'
 import qs from 'querystring'
-import { getAuthOptions } from '@/constants'
-import { fixEndpoints } from '@/util/endpoint.util'
+import { DataProvider } from '@spider-bytes/dataprovider-client/lib-esm'
+import { CLIENT_ID, REDIRECT_URI, SCOPES } from '@/constants'
 import { cleanCurrentUrl } from '@/util/url.util'
 
 export default {
@@ -52,30 +51,22 @@ export default {
     cleanCurrentUrl()
 
     try {
-      const auth = new IndieAuth(getAuthOptions())
+      this.dataProvider = new DataProvider(
+        SCOPES,
+        CLIENT_ID,
+        REDIRECT_URI,
+        sessionStorage,
+        'spider-bytes.'
+      );
 
       const query = this.$route.query;
       this.stateStr = query.state;
-      if (this.stateStr) {
-        this.state = auth.validateState(this.stateStr)
-        if (!this.state) {
-          console.warn('throw error')
-        }
-
-        auth.options.me = this.state.me
-      } else {
-        auth.options.me = sessionStorage.getItem('spider-bytes.userId')
-      }
-      await auth.getRelsFromUrl(auth.options.me)
-      auth.options = fixEndpoints(auth.options)
-
       this.code = query.code
-      sessionStorage.setItem('spider-bytes.authCode', this.code)
-      this.codeVerification = await auth.verifyCode(this.code)
 
-      this.token = await auth.getToken(this.code)
-      sessionStorage.setItem('spider-bytes.accessToken', this.token)
-      const response = await fetch(auth.options.tokenEndpoint, { headers: { Authorization: 'Bearer ' + this.token } })
+      await this.dataProvider.obtainAccessToken(this.code, this.stateStr);
+      this.token = this.dataProvider.accessToken;
+
+      const response = await fetch(this.dataProvider.tokenEndpoint, { headers: { Authorization: 'Bearer ' + this.token } })
       const contentType = response.headers.get('Content-Type')
       if (contentType.startsWith('application/json')) {
         this.tokenVerification = await response.json()
