@@ -168,9 +168,9 @@
     },
     async mounted() {
       this.userUrl = '';
-      this.userId = sessionStorage.getItem('step1.userId');
+      this.userId = sessionStorage.getItem('spider-bytes.userId');
       this.userIdBase64 = btoa(this.userId);
-      this.userToken = sessionStorage.getItem('step2.token');
+      this.userToken = sessionStorage.getItem('spider-bytes.accessToken');
 
       const auth = new IndieAuth(getAuthOptions());
       const rels = await auth.getRelsFromUrl(this.userId, ['spider-bytes']);

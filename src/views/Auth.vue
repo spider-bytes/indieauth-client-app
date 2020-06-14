@@ -64,17 +64,17 @@ export default {
 
         auth.options.me = this.state.me
       } else {
-        auth.options.me = sessionStorage.getItem('step1.userId')
+        auth.options.me = sessionStorage.getItem('spider-bytes.userId')
       }
       await auth.getRelsFromUrl(auth.options.me)
       auth.options = fixEndpoints(auth.options)
 
-      this.code = query.code || sessionStorage.getItem('step2.code')
-      sessionStorage.setItem('step2.code', this.code)
+      this.code = query.code
+      sessionStorage.setItem('spider-bytes.authCode', this.code)
       this.codeVerification = await auth.verifyCode(this.code)
 
       this.token = await auth.getToken(this.code)
-      sessionStorage.setItem('step2.token', this.token)
+      sessionStorage.setItem('spider-bytes.accessToken', this.token)
       const response = await fetch(auth.options.tokenEndpoint, { headers: { Authorization: 'Bearer ' + this.token } })
       const contentType = response.headers.get('Content-Type')
       if (contentType.startsWith('application/json')) {
@@ -82,7 +82,7 @@ export default {
       } else {
         this.tokenVerification = qs.parse(await response.text())
       }
-      sessionStorage.setItem('step1.userId', this.tokenVerification.me);
+      sessionStorage.setItem('spider-bytes.userId', this.tokenVerification.me);
     } catch (err) {
       console.error('error', err)
     }

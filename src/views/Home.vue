@@ -41,13 +41,12 @@ export default {
       this.$router.replace({ path: routePath, query })
     }
 
-    this.userId = sessionStorage.getItem('step1.userId')
     this.dataProvider = new DataProvider(
       SCOPES,
       CLIENT_ID,
       REDIRECT_URI,
       sessionStorage,
-      'step1.'
+      'spider-bytes.'
     );
   },
   methods: {
