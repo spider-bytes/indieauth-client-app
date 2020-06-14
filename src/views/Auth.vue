@@ -29,9 +29,7 @@
 </template>
 
 <script>
-import qs from 'querystring'
-import { DataProvider } from '@spider-bytes/dataprovider-client/lib-esm'
-import { CLIENT_ID, REDIRECT_URI, SCOPES } from '@/constants'
+import { getDataProvider } from '@/constants'
 import { cleanCurrentUrl } from '@/util/url.util'
 
 export default {
@@ -51,13 +49,7 @@ export default {
     cleanCurrentUrl()
 
     try {
-      this.dataProvider = new DataProvider(
-        SCOPES,
-        CLIENT_ID,
-        REDIRECT_URI,
-        sessionStorage,
-        'spider-bytes.'
-      );
+      this.dataProvider = getDataProvider();
 
       const query = this.$route.query;
       this.stateStr = query.state;

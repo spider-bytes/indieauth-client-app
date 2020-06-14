@@ -16,8 +16,7 @@
 </template>
 
 <script>
-import { DataProvider } from '@spider-bytes/dataprovider-client/lib-esm'
-import { SCOPES, CLIENT_ID, REDIRECT_URI } from '@/constants'
+import { getDataProvider } from '@/constants'
 
 export default {
   name: 'Home',
@@ -41,13 +40,7 @@ export default {
       this.$router.replace({ path: routePath, query })
     }
 
-    this.dataProvider = new DataProvider(
-      SCOPES,
-      CLIENT_ID,
-      REDIRECT_URI,
-      sessionStorage,
-      'spider-bytes.'
-    );
+    this.dataProvider = getDataProvider();
   },
   methods: {
     keyPress (e) {

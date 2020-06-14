@@ -94,8 +94,7 @@
 </template>
 
 <script>
-  import { DataProvider } from '@spider-bytes/dataprovider-client/lib-esm'
-  import { CLIENT_ID, REDIRECT_URI, SCOPES } from '@/constants';
+  import { getDataProvider } from '@/constants';
 
   export default {
     name: 'Database',
@@ -162,13 +161,7 @@
       }
     },
     async mounted() {
-      this.dataProvider = new DataProvider(
-        SCOPES,
-        CLIENT_ID,
-        REDIRECT_URI,
-        sessionStorage,
-        'spider-bytes.'
-      );
+      this.dataProvider = getDataProvider();
 
       this.rootServer = await this.dataProvider.getRootNode();
       await this.rootServer.initSession();
