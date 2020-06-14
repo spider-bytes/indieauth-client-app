@@ -94,8 +94,8 @@
 </template>
 
 <script>
-  import IndieAuth from 'indieauth-helper';
-  import { getAuthOptions } from '@/constants';
+  import { DataProvider } from '@spider-bytes/dataprovider-client/lib-esm'
+  import { CLIENT_ID, REDIRECT_URI, SCOPES } from '@/constants';
 
   export default {
     name: 'Database',
@@ -130,35 +130,30 @@
         };
       },
       fetchDatabaseList: async function () {
-        const dbListRes = await fetch(this.spiderBytesAddress + '/database', { headers: this.createDatabaseTokenHeaders() });
-        this.dbList = (await dbListRes.json()).databases;
+        this.dbList = (await this.rootServer.listDatabases()).databases
 
-        const fsRes = await fetch(this.spiderBytesAddress + '/filesystem', { headers: this.createDatabaseTokenHeaders() });
-        const fs = await fsRes.json();
-        this.filesystemDatabase = fsRes.ok ? fs.databaseId : null;
-        this.filesystemDatabaseRequested = true;
+        this.filesystemDatabase = (await this.rootServer.getFilesystemDatabaseId()).databaseId
+        this.filesystemDatabaseRequested = true
       },
       createDatabase: async function () {
         const isFilesystem = !!this.createDatabaseIsFilesystem;
-        await fetch(this.spiderBytesAddress + '/database', {
-          method: 'POST',
-          headers: this.createDatabaseTokenHeaders(),
-          body: JSON.stringify({ scope: this.createDatabaseScope, isFilesystem }),
+        await this.rootServer.createDatabase({
+          createDatabaseBody: {
+            scope: this.createDatabaseScope,
+            isFilesystem,
+          }
         });
         await this.fetchDatabaseList();
       },
-      deleteDatabase: async function (dbId) {
-        await fetch(this.spiderBytesAddress + '/database/' + dbId, {
-          method: 'DELETE',
-          headers: this.createDatabaseTokenHeaders(),
-        });
+      deleteDatabase: async function (databaseId) {
+        await this.rootServer.deleteDatabase({ databaseId });
         await this.fetchDatabaseList();
       },
       manageAccess: async function (dbId, userId, role) {
-        await fetch(this.spiderBytesAddress + '/database/' + dbId + '/user/' + userId + '/access', {
-          method: 'PUT',
-          headers: this.createDatabaseTokenHeaders(),
-          body: JSON.stringify({ role }),
+        await this.rootServer.setAccessToDatabase({
+          databaseId: dbId,
+          userId: userId,
+          manageAccessBody: { role }
         });
         await this.fetchDatabaseList();
       },
@@ -167,21 +162,16 @@
       }
     },
     async mounted() {
-      this.userUrl = '';
-      this.userId = sessionStorage.getItem('spider-bytes.userId');
-      this.userIdBase64 = btoa(this.userId);
-      this.userToken = sessionStorage.getItem('spider-bytes.accessToken');
+      this.dataProvider = new DataProvider(
+        SCOPES,
+        CLIENT_ID,
+        REDIRECT_URI,
+        sessionStorage,
+        'spider-bytes.'
+      );
 
-      const auth = new IndieAuth(getAuthOptions());
-      const rels = await auth.getRelsFromUrl(this.userId, ['spider-bytes']);
-      this.spiderBytesAddress = rels['spider-bytes'].replace(/\/$/g, '');
-
-      const dbSessionRes = await fetch(this.spiderBytesAddress + '/database-session', {
-        method: 'POST',
-        headers: this.createUserTokenHeaders(),
-      });
-      const databaseSessionBody = await dbSessionRes.json();
-      this.databaseToken = databaseSessionBody.token;
+      this.rootServer = await this.dataProvider.getRootNode();
+      await this.rootServer.initSession();
 
       await this.fetchDatabaseList();
     }
