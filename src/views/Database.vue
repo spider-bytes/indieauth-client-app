@@ -166,6 +166,12 @@
       this.rootServer = await this.dataProvider.getRootNode();
       await this.rootServer.initSession();
 
+      this.userId = this.dataProvider.userId;
+      this.userToken = this.dataProvider.accessToken;
+      this.userIdBase64 = btoa(this.userId);
+      this.spiderBytesAddress = this.rootServer.nodeUrl;
+      this.databaseToken = this.rootServer.databaseSessionToken;
+
       await this.fetchDatabaseList();
     }
   }

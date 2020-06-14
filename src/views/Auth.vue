@@ -14,10 +14,6 @@
       <div class="col-10">{{code}}</div>
     </div>
     <div class="row">
-      <div class="col-2">Code Verification:</div>
-      <div class="col-10">{{codeVerification}}</div>
-    </div>
-    <div class="row">
       <div class="col-2">Token:</div>
       <div class="col-10">{{token}}</div>
     </div>
@@ -29,6 +25,7 @@
 </template>
 
 <script>
+import qs from 'querystring'
 import { getDataProvider } from '@/constants'
 import { cleanCurrentUrl } from '@/util/url.util'
 
