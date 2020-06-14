@@ -16,8 +16,8 @@
 </template>
 
 <script>
-import IndieAuth from 'indieauth-helper'
-import { getAuthOptions } from '@/constants'
+import { DataProvider } from '@spider-bytes/dataprovider-client/lib-esm'
+import { SCOPES, CLIENT_ID, REDIRECT_URI } from '@/constants'
 
 export default {
   name: 'Home',
@@ -42,6 +42,13 @@ export default {
     }
 
     this.userId = sessionStorage.getItem('step1.userId')
+    this.dataProvider = new DataProvider(
+      SCOPES,
+      CLIENT_ID,
+      REDIRECT_URI,
+      sessionStorage,
+      'step1.'
+    );
   },
   methods: {
     keyPress (e) {
@@ -49,15 +56,8 @@ export default {
         this.authenticate()
       }
     },
-    authenticate () {
-      const auth = new IndieAuth(getAuthOptions())
-      sessionStorage.setItem('step1.userId', this.userId)
-      auth.options.me = this.userId
-
-      auth
-        .getAuthUrl('code', ['spider-bytes:demo-scope1', 'spider-bytes:demo-scope2', 'spider-bytes:db'])
-        .then(url => (window.location.href = url))
-        .catch(err => console.log(err))
+    async authenticate () {
+      await this.dataProvider.openLoginForm();
     }
   }
 }

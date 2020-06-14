@@ -15,5 +15,10 @@ module.exports = {
         logLevel: 'debug',
       }
     }
+  },
+  configureWebpack: {
+    resolve: {
+      symlinks: false
+    }
   }
 }
