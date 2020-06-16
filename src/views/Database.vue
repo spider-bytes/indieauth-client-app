@@ -23,7 +23,13 @@
     </div>
     <div class="row">
       <div class="col-2">Filesystem Database:</div>
-      <div class="col-10">{{filesystemDatabaseRequested ? (filesystemDatabase ? filesystemDatabase : 'not found') : '-'}}</div>
+      <div class="col-10">{{filesystemDatabaseRequested ? (filesystemDatabase ? filesystemDatabase : 'not found') :
+        '-'}}
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-2">Pouch response:</div>
+      <div class="col-10">{{pouchResponse}}</div>
     </div>
     <div class="row">
       <div class="col-2">Database List:</div>
@@ -31,7 +37,8 @@
         <form class="form-inline my-2">
           <div class="form-group mx-2">
             <label for="exampleInput1" class="mr-2">Scope:</label>
-            <input type="text" class="form-control" id="exampleInput1" placeholder="example-scope" v-model="createDatabaseScope">
+            <input type="text" class="form-control" id="exampleInput1" placeholder="example-scope"
+                   v-model="createDatabaseScope">
           </div>
           <div class="form-check mx-2">
             <input type="checkbox" class="form-check-input" id="exampleCheck1" v-model="createDatabaseIsFilesystem">
@@ -45,9 +52,10 @@
             <div>
               <div>
                 DatabaseId: {{db.databaseId}}
-                <button class="btn btn-primary btn-sm m-2" @click="deleteDatabase(db.databaseId)"
+                <button class="btn btn-danger btn-sm m-2" @click="deleteDatabase(db.databaseId)"
                         :disabled="db.accessRole !== 'OWNER'">Delete
                 </button>
+                <button class="btn btn-primary btn-sm m-2" @click="showDocuments(db.databaseId)">Test</button>
                 <br>
               </div>
               <div>Role: {{db.accessRole}}</div>
@@ -77,11 +85,14 @@
                 <li v-if="db.accessRole === 'OWNER'">
                   <input v-model="userUrl">
                   <button class="btn btn-success btn-sm m-2"
-                          @click="manageAccess(db.databaseId, base64Encode(userUrl), 'READER')">READER</button>
+                          @click="manageAccess(db.databaseId, base64Encode(userUrl), 'READER')">READER
+                  </button>
                   <button class="btn btn-success btn-sm m-2"
-                          @click="manageAccess(db.databaseId, base64Encode(userUrl), 'WRITER')">WRITER</button>
+                          @click="manageAccess(db.databaseId, base64Encode(userUrl), 'WRITER')">WRITER
+                  </button>
                   <button class="btn btn-success btn-sm m-2"
-                          @click="manageAccess(db.databaseId, base64Encode(userUrl), 'OWNER')">OWNER</button>
+                          @click="manageAccess(db.databaseId, base64Encode(userUrl), 'OWNER')">OWNER
+                  </button>
                 </li>
               </ul>
             </div>
@@ -95,6 +106,10 @@
 
 <script>
   import { getDataProvider } from '@/constants';
+  import PouchDB from 'pouchdb';
+  import { SpiderBytesPouchDB } from '@spider-bytes/dataprovider-client';
+
+  PouchDB.plugin(SpiderBytesPouchDB.plugin);
 
   export default {
     name: 'Database',
@@ -112,6 +127,7 @@
         filesystemDatabaseRequested: this.filesystemDatabaseRequested,
         createDatabaseScope: this.createDatabaseScope,
         createDatabaseIsFilesystem: this.createDatabaseIsFilesystem,
+        pouchResponse: this.pouchResponse,
       }
     },
     methods: {
@@ -155,6 +171,10 @@
           manageAccessBody: { role }
         });
         await this.fetchDatabaseList();
+      },
+      async showDocuments(dbId) {
+        const pouch = SpiderBytesPouchDB.createPouchDB(PouchDB, this.rootServer, dbId);
+        this.pouchResponse = await pouch.allDocs();
       },
       base64Encode(plainText) {
         return btoa(plainText);
